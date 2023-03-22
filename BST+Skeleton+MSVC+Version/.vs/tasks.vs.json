@@ -1,0 +1,10 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "task-BST Skeleton",
+      "appliesTo": "BST Skeleton/BST Skeleton.sln",
+      "type": "launch"
+    }
+  ]
+}
