@@ -75,6 +75,43 @@ int Graph::shortestDistance(int s, int d)
 		}
 	}
 
+	if (return_item != -1) {
+		cout << "Path: ";
+		int traversal = d;
+		int i = 0;
+		do {
+			path[i] = traversal;
+			traversal = parent[traversal];
+			i++;
+		} while(traversal != s && traversal != -1);
+
+		path[i] = s;
+
+		int start = 0;
+		int end = i;
+
+		while (start < end) {
+			swap(path[start], path[end]);
+			start++;
+			end++;
+		}
+
+		int j = 0;
+
+		if (path[i] == path[j+1]) {
+			cout << path[j];
+		}
+		else {
+			for (j = 0; path[j] != -1 && j < _nv; j++)
+            {
+                cout << path[j];
+                if (path[j+1] != -1)
+                    cout << " ";
+            }
+		}
+		cout << endl;
+
+	}
 	delete[] distance;
     delete[] final_dist;
     delete[] path;
