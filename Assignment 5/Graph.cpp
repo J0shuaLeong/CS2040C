@@ -7,7 +7,7 @@ std::ostream& operator<<(std::ostream& os, nodeWeightPair const& n) {
 	return os << " (idx:" << n._node << " w:" << n._weight << ")";
 }
 
-
+//
 Graph::Graph(int n)
 {
 	_al = new List<nodeWeightPair> [n];
