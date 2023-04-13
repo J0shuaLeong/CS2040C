@@ -7,7 +7,6 @@ protected:
 	int _n;
 	void _bubbleUp(int index);
 	void _bubbleDown(int index);
-    void _swap(int, int);
     int _lookFor(T x); // return the index of the item x, return -1 if not found
                        // it is not a good/usual implementation, so we hide it from public
 public:
@@ -25,6 +24,7 @@ public:
     void increaseKey(T from, T to);
     void decreaseKey(T from, T to);
     void deleteItem(T);
+	void _swap(int, int);
 
 	~Heap() { delete[] _heap; };
 };

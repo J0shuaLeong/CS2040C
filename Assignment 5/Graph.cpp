@@ -14,110 +14,144 @@ Graph::Graph(int n)
 	_nv = n;
 }
 
-int Graph::shortestDistance(int s, int d)
-{
-	// implement your code here
+int Graph::shortestDistance(int s, int d) {
 	Heap <nodeWeightPair> heapVertex;
 
-	nodeWeightPair source_node;
+	int* distance = new int[_nv];
+	int* true_distance = new int[_nv];
+	int* parent = new int[_nv];
+	int* path = new int[_nv];
+
 	for (int i = 0; i < _nv; i++) {
-		nodeWeightPair initialise = nodeWeightPair(i, -999999999);
-		if (i == s) {
-			//set weight of source node to 0 and insert to heap
-			source_node = nodeWeightPair(i, 0);
-			heapVertex.insert(source_node);
-		}
-		else {
-			//insert the rest with infinity weight 
-			heapVertex.insert(initialise);
-		}
-	}
-
-	int *distance = new int [_nv];
-	int *final_dist = new int [_nv];
-	int *path = new int [_nv];
-	int *parent = new int [_nv];
-	for (int i = 0; i < _nv; i ++) {
-		if (i == s) {
-			distance[s] = 0;
-			final_dist[s] = 0;
-		}
-		distance[i] = -999999999;
-		final_dist[i] = -999999999;
-		path[i] = -1;
+		distance[i] = 1e6;
+		true_distance[i] = 1e6;
 		parent[i] = -1;
+		path[i] = -1;
 	}
 
-	int return_item;
-	
-	while(!heapVertex.empty()) {
-		nodeWeightPair extracted_item = heapVertex.extractMax();
-		int extracted_index = extracted_item.nodeIndex();
+	distance[s] = 0;
+	true_distance[s] = 0;
+	nodeWeightPair source = nodeWeightPair(s, 0);
+	heapVertex.insert(source);
 
-		//relaxing and update
-		for (_al[extracted_index].start(); !_al[extracted_index].end(); _al[extracted_index].next()) {
-			nodeWeightPair neighbor = _al[extracted_index].current();
-			int neighbor_index = neighbor.nodeIndex();
-			int neighbor_weight = neighbor.weight() * -1;
+	while (!heapVertex.empty()) {
+		nodeWeightPair node = heapVertex.extractMax();
+		int nodeWeight = -node.weight();
+		int e = node.nodeIndex();
+		if (nodeWeight > distance[e])
+			continue;
 
-			if (distance[extracted_index] != -999999999 && (distance[extracted_index] + neighbor_weight	> distance[neighbor_index])) {
-				distance[neighbor_index] = distance[extracted_index] + neighbor_weight;
-				final_dist[neighbor_index] = final_dist[extracted_index] + (-1 * neighbor_weight);
-				nodeWeightPair adjusted_neighbor = nodeWeightPair(neighbor_index, distance[neighbor_index]);
-				heapVertex.increaseKey(neighbor, adjusted_neighbor);
+		for (_al[e].start(); !_al[e].end(); _al[e].next()) {
+			nodeWeightPair v = _al[e].current();
+			if (distance[e] + v.weight() >= distance[v.nodeIndex()]) {
+				continue;
 			}
-		}
-
-		if (final_dist[d] == -999999999) {
-			return_item = -1;
-		} else {
-			return_item = final_dist[d];
+			distance[v.nodeIndex()] = distance[e] + v.weight();
+			true_distance[v.nodeIndex()] = distance[v.nodeIndex()];
+			heapVertex.insert(nodeWeightPair(v.nodeIndex(), -distance[v.nodeIndex()]));
+			parent[v.nodeIndex()] = e;
 		}
 	}
 
+	int return_item = -1;
+
+	//update return_item
+	if (true_distance[d] < 1e6) {
+		return_item = true_distance[d];
+	}
 	if (return_item != -1) {
 		cout << "Path: ";
-		int traversal = d;
 		int i = 0;
-		do {
+		for (int traversal = d; traversal != s && traversal != -1; i++) {
 			path[i] = traversal;
 			traversal = parent[traversal];
-			i++;
-		} while(traversal != s && traversal != -1);
-
+		}
 		path[i] = s;
-
-		int start = 0;
-		int end = i;
-
-		while (start < end) {
-			swap(path[start], path[end]);
-			start++;
-			end++;
-		}
-
-		int j = 0;
-
-		if (path[i] == path[j+1]) {
+		for (int j = i; j >= 0; j--) {
 			cout << path[j];
-		}
-		else {
-			for (j = 0; path[j] != -1 && j < _nv; j++)
-            {
-                cout << path[j];
-                if (path[j+1] != -1)
-                    cout << " ";
-            }
+			if (j != 0)
+				cout << " ";
 		}
 		cout << endl;
-
 	}
+
+	delete[] path;
+	delete[] parent;
 	delete[] distance;
-    delete[] final_dist;
-    delete[] path;
-    delete[] parent;
-    return return_item;
+	delete[] true_distance;
+	return return_item;
 }
+
+/*void printPath(int* node, int idx) {
+	if (node[idx] == -1) {
+		cout << " ";
+		cout << idx;
+		return;
+	}
+
+	printPath(node, node[idx]);
+	cout << " ";
+	cout << idx;
+}
+
+int Graph::shortestDistance(int s, int d) {
+
+	int* node = (int*)calloc(_nv, sizeof(int));
+	bool* dist_travelled = (bool*)calloc(_nv, sizeof(bool));
+	int* distance = (int*)calloc(_nv, sizeof(int));
+	Heap<nodeWeightPair> heapVertex;
+
+	heapVertex.insert(nodeWeightPair(s, 0));
+
+	for (int i = 0; i < _nv; i++) {
+		if (i != s) {
+			distance[i] = -1e6;
+		}
+	}
+	node[s] = -1;
+
+	while (!heapVertex.empty()) {
+		nodeWeightPair v = heapVertex.extractMax();
+		dist_travelled[v.nodeIndex()] = true;
+		if (v.nodeIndex() == d) {
+			break;
+		}
+		_al[v.nodeIndex()].start();
+
+		while (!_al[v.nodeIndex()].end()) {
+			nodeWeightPair neighbor = _al[v.nodeIndex()].current();
+			if (!dist_travelled[neighbor.nodeIndex()] && distance[neighbor.nodeIndex()] < distance[v.nodeIndex()] - neighbor.weight()) {
+				if (distance[neighbor.nodeIndex()] == -1e6) {
+					heapVertex.insert(nodeWeightPair(neighbor.nodeIndex(), distance[v.nodeIndex()] - neighbor.weight()));
+				}
+				else {
+					heapVertex.increaseKey(neighbor, nodeWeightPair(neighbor.nodeIndex(), distance[v.nodeIndex()] - neighbor.weight()));
+				}
+				distance[neighbor.nodeIndex()] = distance[v.nodeIndex()] - neighbor.weight();
+
+				node[neighbor.nodeIndex()] = v.nodeIndex();
+			}
+			_al[v.nodeIndex()].next();
+		}
+	}
+	// Output path
+	if (distance[d] != -1e6) {
+		cout << "Path:";
+		printPath(node, d);
+		cout << endl;
+	}
+	int sd;
+	if (distance[d] == -1e6) {
+		sd = -1;
+	}
+	else {
+		sd = -distance[d];
+	}
+
+	free(dist_travelled);
+	free(distance);
+	return sd;
+}*/
 
 void Graph::addEdge(int s, int d, int w)
 {
@@ -136,6 +170,7 @@ void Graph::printGraph()
 	}
 
 }
+
 Graph::~Graph()
 {
 

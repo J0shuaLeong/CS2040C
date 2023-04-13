@@ -1,0 +1,5 @@
+﻿  Graph.cpp
+C:\Users\Joshua\Desktop\CS2040c\Assignment 5\Graph.cpp(26,17): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joshua\Desktop\CS2040c\Assignment 5\Graph.cpp(27,22): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+C:\Users\Joshua\Desktop\CS2040c\Assignment 5\simpleLinkedListTemplate.h(49): warning C4715: 'List<nodeWeightPair>::current': not all control paths return a value
+  Assignment 5.vcxproj -> C:\Users\Joshua\Desktop\CS2040c\Assignment 5\x64\Debug\Assignment 5.exe
